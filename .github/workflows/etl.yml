@@ -1,0 +1,47 @@
+name: etl
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    
+    # Nadaje botowi GitHub Actions uprawnienia do pushowania zmian
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run ETL script
+        env:
+          # Mapowanie GitHub Secrets do zmiennych środowiskowych
+          FRIDGEWATCHDOG_API_KEY: ${{ secrets.FRIDGEWATCHDOG_API_KEY }}
+          API_SERVER: ${{ secrets.API_SERVER }}
+        run: python etl.py 
+
+      - name: Commit and Push data
+        run: |
+          # Konfiguracja git dla bota GitHub Actions
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # Dodanie folderu data do stage'a
+          git add data/
+          
+          # Sprawdzenie czy są jakieś zmiany. Jeśli tak, zrób commit i push.
+          # Używamy daty w nazwie commita, aby było czytelnie.
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update danych ETL: $(date +'%Y-%m-%d %H:%M')" && git push)
