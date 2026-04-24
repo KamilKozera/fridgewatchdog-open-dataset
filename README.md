@@ -4,7 +4,13 @@
 
 The dataset is automatically refreshed **every 24 hours at midnight UTC (00:00 UTC)** via GitHub Actions.
 
-**Timezone Note:** Please note that all timestamps within the dataset are recorded in the **UTC+1** timezone.
+## Data Types
+
+**Voltage:** Data in millivolts [mV].
+
+**Duration:** Data in millisconds [ms].
+
+**Timezone:** Please note that all timestamps within the dataset are recorded in the **UTC+1** timezone.
 
 ## Data Download
 
